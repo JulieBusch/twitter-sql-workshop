@@ -31,19 +31,19 @@ module.exports = function makeRouterWithSockets (io) {
 
   // single-user page
   router.get('/users/:username', function(req, res, next){
-      // client.query('SELECT name FROM users WHERE name=$1', [req.params.username], 
-      //   function (err, result) {
-      //    var tweets = result.rows;
-      //     res.render('index', { title: 'Twitter.js', tweets: tweets, showForm: true });
-      // });
+      client.query('SELECT users.name, tweets.content FROM tweets inner join users on users.id = tweets.userid WHERE name=$1', [req.params.username], 
+        function (err, result) {
+         var tweets = result.rows;
+          res.render('index', { title: 'Twitter.js', tweets: tweets, showForm: true });
+      });
 
-    var tweetsForName = tweetBank.find({ name: req.params.username });
-    res.render('index', {
-      title: 'Twitter.js',
-      tweets: tweetsForName,
-      showForm: true,
-      username: req.params.username
-    });
+    // var tweetsForName = tweetBank.find({ name: req.params.username });
+    // res.render('index', {
+    //   title: 'Twitter.js',
+    //   tweets: tweets,
+    //   showForm: true,
+    //   username: req.params.username
+    // });
   });
 
   // single-tweet page
