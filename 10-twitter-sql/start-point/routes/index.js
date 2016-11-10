@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var tweetBank = require('../tweetBank');
+const client = require('../db/');
 
 module.exports = function makeRouterWithSockets (io) {
 
@@ -15,12 +16,27 @@ module.exports = function makeRouterWithSockets (io) {
     });
   }
 
+
+  router.get('/',function(req, res, next){
+        client.query('SELECT users.name, tweets.content FROM tweets inner join users on users.id = tweets.userid', function (err, result) {
+          if (err) return next(err); // pass errors to Express
+          var tweets = result.rows;
+          res.render('index', { title: 'Twitter.js', tweets: tweets, showForm: true });
+      });
+  });
+
   // here we basically treet the root view and tweets view as identical
   router.get('/', respondWithAllTweets);
   router.get('/tweets', respondWithAllTweets);
 
   // single-user page
   router.get('/users/:username', function(req, res, next){
+      // client.query('SELECT name FROM users WHERE name=$1', [req.params.username], 
+      //   function (err, result) {
+      //    var tweets = result.rows;
+      //     res.render('index', { title: 'Twitter.js', tweets: tweets, showForm: true });
+      // });
+
     var tweetsForName = tweetBank.find({ name: req.params.username });
     res.render('index', {
       title: 'Twitter.js',
