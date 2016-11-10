@@ -66,6 +66,33 @@ module.exports = function makeRouterWithSockets (io) {
 
   // create a new tweet
   router.post('/tweets', function(req, res, next){
+    var usersObj;
+      client.query('select id, name from users', function (err, data) {
+            // console.log("user names from table", data);
+            usersObj = data.rows;
+          });
+    console.log(usersObj);
+
+      var isUser = false;
+      usersObj.forEach(function(elem){
+          if(elem.name === req.body.name){
+              isUser = true;
+          } 
+          
+      });
+      if(!isUser){
+
+       client.query('INSERT INTO users (name) VALUES ($1)',  [req.body.name], 
+            function (err, data) {
+            console.log("row added", data.row);
+          });
+      }
+
+      client.query('INSERT INTO tweets (userid, content) VALUES ($1, $2)', [req.body.name, req.body.content], 
+            function (err, data) {
+            
+          });
+   
     var newTweet = tweetBank.add(req.body.name, req.body.content);
     io.sockets.emit('new_tweet', newTweet);
     res.redirect('/');
